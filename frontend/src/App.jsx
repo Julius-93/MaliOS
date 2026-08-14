@@ -1,12 +1,12 @@
+import { BrowserRouter } from 'react-router-dom'
 import './App.css'
-import DashboardLayout from './layouts/DashboardLayout'
-import Dashboard from './pages/Dashboard'
+import AppRoutes from './routes/AppRoutes'
 
 function App() {
   return (
-    <DashboardLayout>
-      <Dashboard />
-    </DashboardLayout>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 

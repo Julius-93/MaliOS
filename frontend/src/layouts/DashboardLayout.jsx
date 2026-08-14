@@ -1,7 +1,8 @@
+import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/navigation/Sidebar'
 import Topbar from '../components/navigation/Topbar'
 
-function DashboardLayout({ children }) {
+function DashboardLayout() {
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -10,7 +11,7 @@ function DashboardLayout({ children }) {
         <Topbar />
 
         <main className="dashboard-content">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
