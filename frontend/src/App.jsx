@@ -1,11 +1,12 @@
 import './App.css'
+import DashboardLayout from './layouts/DashboardLayout'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
-    <div className="app">
-      <h1>MaliOS</h1>
-      <p>Your personal financial operating system.</p>
-    </div>
+    <DashboardLayout>
+      <Dashboard />
+    </DashboardLayout>
   )
 }
 

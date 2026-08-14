@@ -1,4 +1,26 @@
 :root {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+
+  --color-text: #111827;
+  --color-text-secondary: #64748b;
+
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+
+  --color-border: #e2e8f0;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08);
+
   font-family:
     Inter,
     system-ui,
@@ -7,8 +29,9 @@
     "Segoe UI",
     sans-serif;
 
-  color: #111827;
-  background: #f8fafc;
+  color: var(--color-text);
+  background: var(--color-background);
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -26,4 +49,12 @@ body,
 
 body {
   min-width: 320px;
+  background: var(--color-background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
