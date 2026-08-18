@@ -1,7 +1,8 @@
-const express = require('express')
-const cors = require('cors')
-const helmet = require('helmet')
-require('dotenv').config()
+import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import helmet from 'helmet'
+import usersRouter from './routes/users'
 
 const app = express()
 
@@ -18,6 +19,8 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   })
 })
+
+app.use('/api/users', usersRouter)
 
 app.listen(PORT, () => {
   console.log(`MaliOS API running on port ${PORT}`)
