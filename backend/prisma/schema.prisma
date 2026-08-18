@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts           FinancialAccount[]
+  budgets            Budget[]
+  investmentAccounts InvestmentAccount[]
+}
+
+model FinancialAccount {
+  id        String      @id @default(uuid())
+  userId    String
+  name      String
+  type      AccountType
+  currency  String      @default("KES")
+  balance   Decimal     @default(0) @db.Decimal(19, 4)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id         String          @id @default(uuid())
+  accountId  String
+  type       TransactionType
+  amount     Decimal         @db.Decimal(19, 4)
+  currency   String          @default("KES")
+  category   String
+  merchant   String?
+  note       String?
+  occurredAt DateTime
+  createdAt  DateTime        @default(now())
+
+  account FinancialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([occurredAt])
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  amount    Decimal  @db.Decimal(19, 4)
+  currency  String   @default("KES")
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model InvestmentAccount {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  provider  String
+  currency  String   @default("KES")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings InvestmentHolding[]
+
+  @@index([userId])
+}
+
+model InvestmentHolding {
+  id                  String    @id @default(uuid())
+  investmentAccountId String
+  symbol              String
+  name                String
+  assetType           AssetType
+  quantity            Decimal   @db.Decimal(24, 8)
+  averageCost         Decimal   @db.Decimal(19, 4)
+  currentPrice        Decimal   @db.Decimal(19, 4)
+  currency            String    @default("KES")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  investmentAccount InvestmentAccount @relation(fields: [investmentAccountId], references: [id], onDelete: Cascade)
+
+  @@index([investmentAccountId])
+  @@index([symbol])
+}
+
+enum AccountType {
+  BANK
+  MOBILE_MONEY
+  CASH
+  CREDIT_CARD
+  SAVINGS
+  OTHER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum AssetType {
+  STOCK
+  BOND
+  ETF
+  MUTUAL_FUND
+  MONEY_MARKET
+  REAL_ESTATE
+  CRYPTO
+  OTHER
+}
