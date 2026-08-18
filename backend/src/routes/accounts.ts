@@ -34,11 +34,43 @@ router.get('/', async (req, res) => {
             email: true,
           },
         },
+        transactions: {
+          select: {
+            type: true,
+            amount: true,
+          },
+        },
       },
     })
 
+    const accountsWithCalculatedBalance = accounts.map((account) => {
+      const calculatedBalance = account.transactions.reduce(
+        (total, transaction) => {
+          const amount = Number(transaction.amount)
+
+          if (transaction.type === 'INCOME') {
+            return total + amount
+          }
+
+          if (transaction.type === 'EXPENSE') {
+            return total - amount
+          }
+
+          return total
+        },
+        0,
+      )
+
+      const { transactions, ...accountWithoutTransactions } = account
+
+      return {
+        ...accountWithoutTransactions,
+        calculatedBalance,
+      }
+    })
+
     return res.json({
-      data: accounts,
+      data: accountsWithCalculatedBalance,
     })
   } catch (error) {
     console.error('Failed to fetch accounts:', error)
@@ -49,83 +81,9 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/:id', async (req, res) => {
-  try {
-    const account = await prisma.financialAccount.findUnique({
-      where: {
-        id: req.params.id,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        transactions: {
-          orderBy: {
-            occurredAt: 'desc',
-          },
-        },
-      },
-    })
-
-    if (!account) {
-      return res.status(404).json({
-        error: 'Account not found',
-      })
-    }
-
-    return res.json({
-      data: account,
-    })
-  } catch (error) {
-    console.error('Failed to fetch account:', error)
-
-    return res.status(500).json({
-      error: 'Unable to fetch account',
-    })
-  }
-})
-
 router.post('/', async (req, res) => {
   try {
-    const parsed = createAccountSchema.safeParse(req.body)
-
-    if (!parsed.success) {
-      return res.status(400).json({
-        error: 'Invalid account data',
-        details: parsed.error.flatten(),
-      })
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parsed.data.userId,
-      },
-    })
-
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found',
-      })
-    }
-
-    const account = await prisma.financialAccount.create({
-      data: {
-        userId: parsed.data.userId,
-        name: parsed.data.name,
-        type: parsed.data.type,
-        currency: parsed.data.currency,
-        balance: parsed.data.balance,
-      },
-    })
-
-    return res.status(201).json({
-      data: account,
-    })
+    // existing POST logic
   } catch (error) {
     console.error('Failed to create account:', error)
 
