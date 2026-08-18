@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import usersRouter from './routes/users'
+import accountsRouter from './routes/accounts'
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.get('/api/health', (req, res) => {
 })
 
 app.use('/api/users', usersRouter)
+app.use('/api/accounts', accountsRouter)
 
 app.listen(PORT, () => {
   console.log(`MaliOS API running on port ${PORT}`)
