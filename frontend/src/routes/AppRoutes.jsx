@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
 import Dashboard from '../pages/Dashboard'
+import Login from '../pages/Login'
+import ProtectedRoute from '../components/ProtectedRoute'
 
 function PlaceholderPage({ title }) {
   return (
@@ -17,53 +19,57 @@ function PlaceholderPage({ title }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route element={<DashboardLayout />}>
-        <Route path="/" element={<Dashboard />} />
+      <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/accounts"
-          element={<PlaceholderPage title="Accounts" />}
-        />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/" element={<Dashboard />} />
 
-        <Route
-          path="/transactions"
-          element={<PlaceholderPage title="Transactions" />}
-        />
+          <Route
+            path="/accounts"
+            element={<PlaceholderPage title="Accounts" />}
+          />
 
-        <Route
-          path="/budgets"
-          element={<PlaceholderPage title="Budgets" />}
-        />
+          <Route
+            path="/transactions"
+            element={<PlaceholderPage title="Transactions" />}
+          />
 
-        <Route
-          path="/cash-flow"
-          element={<PlaceholderPage title="Cash Flow" />}
-        />
+          <Route
+            path="/budgets"
+            element={<PlaceholderPage title="Budgets" />}
+          />
 
-        <Route
-          path="/portfolio"
-          element={<PlaceholderPage title="Portfolio" />}
-        />
+          <Route
+            path="/cash-flow"
+            element={<PlaceholderPage title="Cash Flow" />}
+          />
 
-        <Route
-          path="/investments"
-          element={<PlaceholderPage title="Investments" />}
-        />
+          <Route
+            path="/portfolio"
+            element={<PlaceholderPage title="Portfolio" />}
+          />
 
-        <Route
-          path="/opportunities"
-          element={<PlaceholderPage title="Opportunities" />}
-        />
+          <Route
+            path="/investments"
+            element={<PlaceholderPage title="Investments" />}
+          />
 
-        <Route
-          path="/goals"
-          element={<PlaceholderPage title="Goals" />}
-        />
+          <Route
+            path="/opportunities"
+            element={<PlaceholderPage title="Opportunities" />}
+          />
 
-        <Route
-          path="/settings"
-          element={<PlaceholderPage title="Settings" />}
-        />
+          <Route
+            path="/goals"
+            element={<PlaceholderPage title="Goals" />}
+          />
+
+          <Route
+            path="/settings"
+            element={<PlaceholderPage title="Settings" />}
+          />
+        </Route>
       </Route>
     </Routes>
   )

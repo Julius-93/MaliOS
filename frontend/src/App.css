@@ -75,6 +75,17 @@
   min-width: 0;
 }
 
+.profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-name {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
 .topbar {
   min-height: 80px;
   padding: 16px 32px;

@@ -1,29 +1,38 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Card from '../components/ui/Card'
 import { getFinancialSummary } from '../services/api'
 
-const TEST_USER_ID = '4b75bca8-121f-400e-94e9-9c95cfbb361f'
-
 function Dashboard() {
+  const navigate = useNavigate()
+
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
 
   useEffect(() => {
     async function loadSummary() {
+      const token = sessionStorage.getItem('malios_token')
+
+      if (!token) {
+        navigate('/login')
+        return
+      }
+
       try {
-        const data = await getFinancialSummary(TEST_USER_ID)
+        const data = await getFinancialSummary(token)
         setSummary(data)
-      } catch (err) {
-        console.error(err)
-        setError('Unable to load your financial summary.')
+      } catch (error) {
+        console.error('Failed to load financial summary:', error)
+
+        sessionStorage.removeItem('malios_token')
+        navigate('/login')
       } finally {
         setLoading(false)
       }
     }
 
     loadSummary()
-  }, [])
+  }, [navigate])
 
   if (loading) {
     return (
@@ -33,12 +42,8 @@ function Dashboard() {
     )
   }
 
-  if (error) {
-    return (
-      <section className="dashboard-page">
-        <p>{error}</p>
-      </section>
-    )
+  if (!summary) {
+    return null
   }
 
   const formatCurrency = (amount) =>
@@ -53,7 +58,7 @@ function Dashboard() {
       <div className="dashboard-heading">
         <div>
           <p className="eyebrow">Overview</p>
-          <h2>Good afternoon</h2>
+          <h2>Welcome back</h2>
           <p>Here's a snapshot of your financial position.</p>
         </div>
       </div>
