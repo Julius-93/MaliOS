@@ -6,6 +6,7 @@ import usersRouter from './routes/users'
 import accountsRouter from './routes/accounts'
 import transactionsRouter from './routes/transactions'
 import summaryRouter from './routes/summary'
+import authRouter from './routes/auth'
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.get('/api/health', (req, res) => {
   })
 })
 
+app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/accounts', accountsRouter)
 app.use('/api/transactions', transactionsRouter)
