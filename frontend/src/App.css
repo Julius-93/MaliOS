@@ -177,6 +177,74 @@
   font-size: 26px;
 }
 
+.account-form-card {
+  margin-bottom: 24px;
+}
+
+.account-form {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+}
+
+.account-form label {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.account-form input,
+.account-form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.account-form button {
+  width: fit-content;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.account-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.accounts-list {
+  display: grid;
+  gap: 16px;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-card h3 {
+  margin: 6px 0 0;
+}
+
+.account-card p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.account-type {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @media (max-width: 1000px) {
   .dashboard-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -226,6 +294,30 @@
   }
 
   .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.account-form-card {
+  margin-bottom: 24px;
+  max-width: 820px;
+}
+
+.accounts-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .accounts-list {
     grid-template-columns: 1fr;
   }
 }

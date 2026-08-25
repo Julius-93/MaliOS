@@ -1,3 +1,5 @@
+import Accounts from '../pages/Accounts'
+import Transactions from '../pages/Transactions'
 import { Routes, Route } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
 import Dashboard from '../pages/Dashboard'
@@ -27,12 +29,12 @@ function AppRoutes() {
 
           <Route
             path="/accounts"
-            element={<PlaceholderPage title="Accounts" />}
+            element={<Accounts />}
           />
 
           <Route
             path="/transactions"
-            element={<PlaceholderPage title="Transactions" />}
+            element={<Transactions />}
           />
 
           <Route

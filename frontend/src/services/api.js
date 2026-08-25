@@ -84,3 +84,41 @@ export async function getTransactions(token) {
 
   return result.data
 }
+
+export async function createAccount(token, accountData) {
+  const response = await fetch(`${API_BASE_URL}/accounts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(accountData),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Failed to create account')
+  }
+
+  return result.data
+}
+
+export async function createTransaction(token, transactionData) {
+  const response = await fetch(`${API_BASE_URL}/transactions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(transactionData),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Failed to create transaction')
+  }
+
+  return result.data
+}
