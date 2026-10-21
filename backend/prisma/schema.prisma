@@ -1,0 +1,291 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  firstName    String
+  lastName     String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts           FinancialAccount[]
+  budgets            Budget[]
+  investmentAccounts InvestmentAccount[]
+  sessions           Session[]
+  opportunities      InvestmentOpportunity[]
+  goals              Goal[]
+  notifications      Notification[]
+
+  settings UserSettings?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model FinancialAccount {
+  id        String      @id @default(uuid())
+  userId    String
+  name      String
+  type      AccountType
+  currency  String      @default("KES")
+  balance   Decimal     @default(0) @db.Decimal(19, 4)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id         String          @id @default(uuid())
+  accountId  String
+  type       TransactionType
+  amount     Decimal         @db.Decimal(19, 4)
+  currency   String          @default("KES")
+  category   String
+  merchant   String?
+  note       String?
+  occurredAt DateTime
+  createdAt  DateTime        @default(now())
+
+  account FinancialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([occurredAt])
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  category  String   @default("Other")
+  amount    Decimal  @db.Decimal(19, 4)
+  currency  String   @default("KES")
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, category])
+}
+
+model InvestmentAccount {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  provider  String
+  currency  String   @default("KES")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings InvestmentHolding[]
+
+  @@index([userId])
+}
+
+model InvestmentHolding {
+  id                  String    @id @default(uuid())
+  investmentAccountId String
+  symbol              String
+  name                String
+  assetType           AssetType
+  quantity            Decimal   @db.Decimal(24, 8)
+  averageCost         Decimal   @db.Decimal(19, 4)
+  currentPrice        Decimal   @db.Decimal(19, 4)
+  currency            String    @default("KES")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  investmentAccount InvestmentAccount @relation(fields: [investmentAccountId], references: [id], onDelete: Cascade)
+
+  @@index([investmentAccountId])
+  @@index([symbol])
+}
+
+model InvestmentOpportunity {
+  id                String            @id @default(uuid())
+  userId            String
+  name              String
+  provider          String?
+  assetType         AssetType
+  currency          String            @default("KES")
+  minimumInvestment Decimal           @db.Decimal(19, 4)
+  expectedReturn    Decimal?          @db.Decimal(8, 4)
+  riskLevel         RiskLevel
+  status            OpportunityStatus @default(WATCHING)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Goal {
+  id            String     @id @default(uuid())
+  userId        String
+  name          String
+  targetAmount  Decimal    @db.Decimal(19, 4)
+  currentAmount Decimal    @default(0) @db.Decimal(19, 4)
+  currency      String     @default("KES")
+  targetDate    DateTime?
+  status        GoalStatus @default(ACTIVE)
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserSettings {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  theme         ThemePreference @default(SYSTEM)
+  compactMode   Boolean         @default(false)
+  reducedMotion Boolean         @default(false)
+
+  defaultCurrency  String               @default("KES")
+  defaultAccountId String?
+  dateFormat       DateFormatPreference @default(DD_MM_YYYY)
+
+  hideBalances Boolean @default(false)
+
+  budgetNotifications     Boolean @default(true)
+  goalNotifications       Boolean @default(true)
+  investmentNotifications Boolean @default(true)
+  largeTransactionAlerts  Boolean @default(true)
+  lowBalanceAlerts        Boolean @default(true)
+
+  budgetAlertThreshold Int @default(80)
+
+  largeTransactionThreshold Decimal @default(50000) @db.Decimal(19, 4)
+  lowBalanceThreshold       Decimal @default(10000) @db.Decimal(19, 4)
+
+  autoLogoutMinutes Float @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  userId    String
+  type      NotificationType
+  severity  NotificationSeverity @default(INFO)
+  title     String
+  message   String
+  sourceId  String?
+  dedupeKey String
+  readAt    DateTime?
+  dismissedAt DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+enum AccountType {
+  BANK
+  MOBILE_MONEY
+  CASH
+  CREDIT_CARD
+  SAVINGS
+  OTHER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum AssetType {
+  STOCK
+  BOND
+  ETF
+  MUTUAL_FUND
+  MONEY_MARKET
+  REAL_ESTATE
+  CRYPTO
+  OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum OpportunityStatus {
+  WATCHING
+  INTERESTED
+  PASSED
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+enum DateFormatPreference {
+  DD_MM_YYYY
+  MM_DD_YYYY
+  YYYY_MM_DD
+}
+
+enum NotificationType {
+  BUDGET
+  LOW_BALANCE
+  LARGE_TRANSACTION
+  GOAL
+  INVESTMENT
+  SYSTEM
+}
+
+enum NotificationSeverity {
+  INFO
+  SUCCESS
+  WARNING
+  DANGER
+}

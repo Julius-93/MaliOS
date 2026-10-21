@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "UserSettings" ALTER COLUMN "autoLogoutMinutes" SET DEFAULT 30,
+ALTER COLUMN "autoLogoutMinutes" SET DATA TYPE DOUBLE PRECISION;
