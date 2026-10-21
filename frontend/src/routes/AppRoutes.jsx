@@ -1,80 +1,186 @@
-import Accounts from '../pages/Accounts'
-import Transactions from '../pages/Transactions'
-import { Routes, Route } from 'react-router-dom'
+import {
+  Routes,
+  Route,
+} from 'react-router-dom'
+
 import DashboardLayout from '../layouts/DashboardLayout'
-import Dashboard from '../pages/Dashboard'
-import Login from '../pages/Login'
 import ProtectedRoute from '../components/ProtectedRoute'
 
-function PlaceholderPage({ title }) {
+import Login from '../pages/Login'
+import Dashboard from '../pages/Dashboard'
+import Accounts from '../pages/Accounts'
+import Transactions from '../pages/Transactions'
+import Budgets from '../pages/Budgets'
+import CashFlow from '../pages/CashFlow'
+import Investments from '../pages/Investments'
+import Portfolio from '../pages/Portfolio'
+import Opportunities from '../pages/Opportunities'
+import Goals from '../pages/Goals'
+import Settings from '../pages/Settings'
+import Notifications from '../pages/Notifications'
+
+
+// Temporary placeholder for sections
+// that we have not built yet.
+function PlaceholderPage({
+  title,
+}) {
   return (
     <section className="dashboard-page">
+
       <div className="dashboard-heading">
-        <p className="eyebrow">MaliOS</p>
-        <h2>{title}</h2>
-        <p>This section is under development.</p>
+
+        <p className="eyebrow">
+          MaliOS
+        </p>
+
+        <h2>
+          {title}
+        </h2>
+
+        <p>
+          This section is under development.
+        </p>
+
       </div>
+
     </section>
   )
 }
 
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Dashboard />} />
+      {/* Public route */}
+
+      <Route
+        path="/login"
+        element={
+          <Login />
+        }
+      />
+
+
+      {/* Protected MaliOS routes */}
+
+      <Route
+        element={
+          <ProtectedRoute />
+        }
+      >
+
+        <Route
+          element={
+            <DashboardLayout />
+          }
+        >
+
+          {/* Dashboard */}
+
+          <Route
+            path="/"
+            element={
+              <Dashboard />
+            }
+          />
+
+
+          {/* Money */}
 
           <Route
             path="/accounts"
-            element={<Accounts />}
+            element={
+              <Accounts />
+            }
           />
+
 
           <Route
             path="/transactions"
-            element={<Transactions />}
+            element={
+              <Transactions />
+            }
           />
+
 
           <Route
             path="/budgets"
-            element={<PlaceholderPage title="Budgets" />}
+            element={
+              <Budgets />
+            }
           />
+
 
           <Route
             path="/cash-flow"
-            element={<PlaceholderPage title="Cash Flow" />}
+            element={
+              <CashFlow />
+            }
           />
+
+
+          {/* Investments */}
 
           <Route
             path="/portfolio"
-            element={<PlaceholderPage title="Portfolio" />}
+            element={
+              <Portfolio />
+            }
           />
+
 
           <Route
             path="/investments"
-            element={<PlaceholderPage title="Investments" />}
+            element={
+              <Investments />
+            }
           />
+
 
           <Route
             path="/opportunities"
-            element={<PlaceholderPage title="Opportunities" />}
+            element={
+              <Opportunities />
+            }
           />
+
+
+          {/* Planning */}
 
           <Route
             path="/goals"
-            element={<PlaceholderPage title="Goals" />}
+            element={
+              <Goals />
+            }
           />
+
+
+          {/* System */}
 
           <Route
             path="/settings"
-            element={<PlaceholderPage title="Settings" />}
+            element={
+              <Settings />
+            }
           />
+
+
+          <Route
+            path="/notifications"
+            element={
+              <Notifications />
+            }
+          />
+
         </Route>
+
       </Route>
+
     </Routes>
   )
 }
+
 
 export default AppRoutes

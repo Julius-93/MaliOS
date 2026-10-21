@@ -57,7 +57,11 @@ export const ModelName = {
   Transaction: 'Transaction',
   Budget: 'Budget',
   InvestmentAccount: 'InvestmentAccount',
-  InvestmentHolding: 'InvestmentHolding'
+  InvestmentHolding: 'InvestmentHolding',
+  InvestmentOpportunity: 'InvestmentOpportunity',
+  Goal: 'Goal',
+  UserSettings: 'UserSettings',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -134,6 +138,7 @@ export const BudgetScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   name: 'name',
+  category: 'category',
   amount: 'amount',
   currency: 'currency',
   startDate: 'startDate',
@@ -173,6 +178,86 @@ export const InvestmentHoldingScalarFieldEnum = {
 } as const
 
 export type InvestmentHoldingScalarFieldEnum = (typeof InvestmentHoldingScalarFieldEnum)[keyof typeof InvestmentHoldingScalarFieldEnum]
+
+
+export const InvestmentOpportunityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  provider: 'provider',
+  assetType: 'assetType',
+  currency: 'currency',
+  minimumInvestment: 'minimumInvestment',
+  expectedReturn: 'expectedReturn',
+  riskLevel: 'riskLevel',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvestmentOpportunityScalarFieldEnum = (typeof InvestmentOpportunityScalarFieldEnum)[keyof typeof InvestmentOpportunityScalarFieldEnum]
+
+
+export const GoalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  targetAmount: 'targetAmount',
+  currentAmount: 'currentAmount',
+  currency: 'currency',
+  targetDate: 'targetDate',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
+
+
+export const UserSettingsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  theme: 'theme',
+  compactMode: 'compactMode',
+  reducedMotion: 'reducedMotion',
+  defaultCurrency: 'defaultCurrency',
+  defaultAccountId: 'defaultAccountId',
+  dateFormat: 'dateFormat',
+  hideBalances: 'hideBalances',
+  budgetNotifications: 'budgetNotifications',
+  goalNotifications: 'goalNotifications',
+  investmentNotifications: 'investmentNotifications',
+  largeTransactionAlerts: 'largeTransactionAlerts',
+  lowBalanceAlerts: 'lowBalanceAlerts',
+  budgetAlertThreshold: 'budgetAlertThreshold',
+  largeTransactionThreshold: 'largeTransactionThreshold',
+  lowBalanceThreshold: 'lowBalanceThreshold',
+  autoLogoutMinutes: 'autoLogoutMinutes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserSettingsScalarFieldEnum = (typeof UserSettingsScalarFieldEnum)[keyof typeof UserSettingsScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  severity: 'severity',
+  title: 'title',
+  message: 'message',
+  sourceId: 'sourceId',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  dismissedAt: 'dismissedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {

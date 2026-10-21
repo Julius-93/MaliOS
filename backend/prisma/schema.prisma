@@ -21,6 +21,11 @@ model User {
   budgets            Budget[]
   investmentAccounts InvestmentAccount[]
   sessions           Session[]
+  opportunities      InvestmentOpportunity[]
+  goals              Goal[]
+  notifications      Notification[]
+
+  settings UserSettings?
 }
 
 model Session {
@@ -73,6 +78,7 @@ model Budget {
   id        String   @id @default(uuid())
   userId    String
   name      String
+  category  String   @default("Other")
   amount    Decimal  @db.Decimal(19, 4)
   currency  String   @default("KES")
   startDate DateTime
@@ -83,6 +89,7 @@ model Budget {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, category])
 }
 
 model InvestmentAccount {
@@ -119,6 +126,98 @@ model InvestmentHolding {
   @@index([symbol])
 }
 
+model InvestmentOpportunity {
+  id                String            @id @default(uuid())
+  userId            String
+  name              String
+  provider          String?
+  assetType         AssetType
+  currency          String            @default("KES")
+  minimumInvestment Decimal           @db.Decimal(19, 4)
+  expectedReturn    Decimal?          @db.Decimal(8, 4)
+  riskLevel         RiskLevel
+  status            OpportunityStatus @default(WATCHING)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Goal {
+  id            String     @id @default(uuid())
+  userId        String
+  name          String
+  targetAmount  Decimal    @db.Decimal(19, 4)
+  currentAmount Decimal    @default(0) @db.Decimal(19, 4)
+  currency      String     @default("KES")
+  targetDate    DateTime?
+  status        GoalStatus @default(ACTIVE)
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserSettings {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  theme         ThemePreference @default(SYSTEM)
+  compactMode   Boolean         @default(false)
+  reducedMotion Boolean         @default(false)
+
+  defaultCurrency  String               @default("KES")
+  defaultAccountId String?
+  dateFormat       DateFormatPreference @default(DD_MM_YYYY)
+
+  hideBalances Boolean @default(false)
+
+  budgetNotifications     Boolean @default(true)
+  goalNotifications       Boolean @default(true)
+  investmentNotifications Boolean @default(true)
+  largeTransactionAlerts  Boolean @default(true)
+  lowBalanceAlerts        Boolean @default(true)
+
+  budgetAlertThreshold Int @default(80)
+
+  largeTransactionThreshold Decimal @default(50000) @db.Decimal(19, 4)
+  lowBalanceThreshold       Decimal @default(10000) @db.Decimal(19, 4)
+
+  autoLogoutMinutes Float @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  userId    String
+  type      NotificationType
+  severity  NotificationSeverity @default(INFO)
+  title     String
+  message   String
+  sourceId  String?
+  dedupeKey String
+  readAt    DateTime?
+  dismissedAt DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
 enum AccountType {
   BANK
   MOBILE_MONEY
@@ -143,4 +242,50 @@ enum AssetType {
   REAL_ESTATE
   CRYPTO
   OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum OpportunityStatus {
+  WATCHING
+  INTERESTED
+  PASSED
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+enum DateFormatPreference {
+  DD_MM_YYYY
+  MM_DD_YYYY
+  YYYY_MM_DD
+}
+
+enum NotificationType {
+  BUDGET
+  LOW_BALANCE
+  LARGE_TRANSACTION
+  GOAL
+  INVESTMENT
+  SYSTEM
+}
+
+enum NotificationSeverity {
+  INFO
+  SUCCESS
+  WARNING
+  DANGER
 }

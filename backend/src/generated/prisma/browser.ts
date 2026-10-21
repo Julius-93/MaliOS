@@ -52,3 +52,23 @@ export type InvestmentAccount = Prisma.InvestmentAccountModel
  * 
  */
 export type InvestmentHolding = Prisma.InvestmentHoldingModel
+/**
+ * Model InvestmentOpportunity
+ * 
+ */
+export type InvestmentOpportunity = Prisma.InvestmentOpportunityModel
+/**
+ * Model Goal
+ * 
+ */
+export type Goal = Prisma.GoalModel
+/**
+ * Model UserSettings
+ * 
+ */
+export type UserSettings = Prisma.UserSettingsModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel

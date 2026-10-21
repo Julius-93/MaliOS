@@ -42,3 +42,70 @@ export const AssetType = {
 } as const
 
 export type AssetType = (typeof AssetType)[keyof typeof AssetType]
+
+
+export const RiskLevel = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
+} as const
+
+export type RiskLevel = (typeof RiskLevel)[keyof typeof RiskLevel]
+
+
+export const OpportunityStatus = {
+  WATCHING: 'WATCHING',
+  INTERESTED: 'INTERESTED',
+  PASSED: 'PASSED'
+} as const
+
+export type OpportunityStatus = (typeof OpportunityStatus)[keyof typeof OpportunityStatus]
+
+
+export const GoalStatus = {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  PAUSED: 'PAUSED'
+} as const
+
+export type GoalStatus = (typeof GoalStatus)[keyof typeof GoalStatus]
+
+
+export const ThemePreference = {
+  SYSTEM: 'SYSTEM',
+  LIGHT: 'LIGHT',
+  DARK: 'DARK'
+} as const
+
+export type ThemePreference = (typeof ThemePreference)[keyof typeof ThemePreference]
+
+
+export const DateFormatPreference = {
+  DD_MM_YYYY: 'DD_MM_YYYY',
+  MM_DD_YYYY: 'MM_DD_YYYY',
+  YYYY_MM_DD: 'YYYY_MM_DD'
+} as const
+
+export type DateFormatPreference = (typeof DateFormatPreference)[keyof typeof DateFormatPreference]
+
+
+export const NotificationType = {
+  BUDGET: 'BUDGET',
+  LOW_BALANCE: 'LOW_BALANCE',
+  LARGE_TRANSACTION: 'LARGE_TRANSACTION',
+  GOAL: 'GOAL',
+  INVESTMENT: 'INVESTMENT',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const NotificationSeverity = {
+  INFO: 'INFO',
+  SUCCESS: 'SUCCESS',
+  WARNING: 'WARNING',
+  DANGER: 'DANGER'
+} as const
+
+export type NotificationSeverity = (typeof NotificationSeverity)[keyof typeof NotificationSeverity]

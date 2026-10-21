@@ -5,45 +5,83 @@ import {
   getAccounts,
   getTransactions,
 } from '../services/api'
+import {
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+} from '../constants/categories'
+import SensitiveValue from '../components/ui/SensitiveValue'
 
 function Transactions() {
   const token = sessionStorage.getItem('malios_token')
 
+  // ================================
+  // DATA
+  // ================================
+
   const [accounts, setAccounts] = useState([])
   const [transactions, setTransactions] = useState([])
+
+  // ================================
+  // FORM FIELDS
+  // ================================
 
   const [accountId, setAccountId] = useState('')
   const [type, setType] = useState('EXPENSE')
   const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState(
+    EXPENSE_CATEGORIES[0],
+  )
   const [merchant, setMerchant] = useState('')
   const [note, setNote] = useState('')
+
+  // ================================
+  // PAGE STATE
+  // ================================
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // Pick the correct categories depending
+  // on whether this is income or an expense.
+  const categories =
+    type === 'INCOME'
+      ? INCOME_CATEGORIES
+      : EXPENSE_CATEGORIES
+
+  // ================================
+  // LOAD ACCOUNTS + TRANSACTIONS
+  // ================================
 
   useEffect(() => {
     let cancelled = false
 
     async function loadData() {
       try {
-        const [accountsData, transactionsData] =
-          await Promise.all([
-            getAccounts(token),
-            getTransactions(token),
-          ])
+        setError('')
+
+        const [
+          accountsData,
+          transactionsData,
+        ] = await Promise.all([
+          getAccounts(token),
+          getTransactions(token),
+        ])
 
         if (!cancelled) {
           setAccounts(accountsData)
           setTransactions(transactionsData)
 
+          // Automatically select the first account.
           if (accountsData.length > 0) {
             setAccountId(accountsData[0].id)
           }
         }
       } catch (err) {
-        console.error('Failed to load transaction data:', err)
+        console.error(
+          'Failed to load transaction data:',
+          err,
+        )
 
         if (!cancelled) {
           setError(err.message)
@@ -62,10 +100,36 @@ function Transactions() {
     }
   }, [token])
 
+  // ================================
+  // REFRESH TRANSACTIONS
+  // ================================
+
   async function refreshTransactions() {
     const data = await getTransactions(token)
     setTransactions(data)
   }
+
+  // ================================
+  // HANDLE TYPE CHANGE
+  // ================================
+
+  function handleTypeChange(event) {
+    const nextType = event.target.value
+
+    setType(nextType)
+
+    // Reset category so it always belongs
+    // to the selected transaction type.
+    if (nextType === 'INCOME') {
+      setCategory(INCOME_CATEGORIES[0])
+    } else {
+      setCategory(EXPENSE_CATEGORIES[0])
+    }
+  }
+
+  // ================================
+  // CREATE TRANSACTION
+  // ================================
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -79,7 +143,9 @@ function Transactions() {
       )
 
       if (!selectedAccount) {
-        throw new Error('Please select an account')
+        throw new Error(
+          'Please select an account',
+        )
       }
 
       await createTransaction(token, {
@@ -93,26 +159,49 @@ function Transactions() {
         occurredAt: new Date().toISOString(),
       })
 
+      // Clear form after successful save.
       setAmount('')
-      setCategory('')
       setMerchant('')
       setNote('')
 
+      // Reset category according to current type.
+      setCategory(
+        type === 'INCOME'
+          ? INCOME_CATEGORIES[0]
+          : EXPENSE_CATEGORIES[0],
+      )
+
+      // Reload transactions immediately.
       await refreshTransactions()
     } catch (err) {
-      console.error('Failed to create transaction:', err)
+      console.error(
+        'Failed to create transaction:',
+        err,
+      )
+
       setError(err.message)
     } finally {
       setSubmitting(false)
     }
   }
 
-  const formatCurrency = (value, currency) =>
+  // ================================
+  // FORMAT MONEY
+  // ================================
+
+  const formatCurrency = (
+    value,
+    currency,
+  ) =>
     new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency,
       maximumFractionDigits: 0,
     }).format(Number(value))
+
+  // ================================
+  // LOADING STATE
+  // ================================
 
   if (loading) {
     return (
@@ -122,31 +211,41 @@ function Transactions() {
     )
   }
 
+  // ================================
+  // PAGE
+  // ================================
+
   return (
     <section className="dashboard-page">
-      <div className="dashboard-heading">
-        <div>
-          <p className="eyebrow">Money</p>
-          <h2>Transactions</h2>
-          <p>
-            Record and review income and expenses.
-          </p>
-        </div>
+      {/* Page heading */}
+      <div className="page-intro">
+        <p>
+         Record and review income and expenses.
+       </p>
       </div>
 
+      {/* Error message */}
       {error && (
-        <p role="alert" className="form-error">
+        <p
+          role="alert"
+          className="form-error"
+        >
           {error}
         </p>
       )}
 
+      {/* ================================
+          ADD TRANSACTION
+      ================================= */}
+
       <Card className="transaction-form-card">
-        <h3>Add transaction</h3>
+        <h3>Add Transaction</h3>
 
         <form
           className="transaction-form"
           onSubmit={handleSubmit}
         >
+          {/* Account */}
           <label htmlFor="transaction-account">
             Account
           </label>
@@ -159,6 +258,12 @@ function Transactions() {
             }
             required
           >
+            {accounts.length === 0 && (
+              <option value="">
+                No accounts available
+              </option>
+            )}
+
             {accounts.map((account) => (
               <option
                 key={account.id}
@@ -169,6 +274,7 @@ function Transactions() {
             ))}
           </select>
 
+          {/* Transaction type */}
           <label htmlFor="transaction-type">
             Type
           </label>
@@ -176,9 +282,7 @@ function Transactions() {
           <select
             id="transaction-type"
             value={type}
-            onChange={(event) =>
-              setType(event.target.value)
-            }
+            onChange={handleTypeChange}
           >
             <option value="INCOME">
               Income
@@ -189,6 +293,7 @@ function Transactions() {
             </option>
           </select>
 
+          {/* Amount */}
           <label htmlFor="transaction-amount">
             Amount
           </label>
@@ -202,24 +307,36 @@ function Transactions() {
             onChange={(event) =>
               setAmount(event.target.value)
             }
+            placeholder="e.g. 5000"
             required
           />
 
+          {/* Category */}
           <label htmlFor="transaction-category">
             Category
           </label>
 
-          <input
+          <select
             id="transaction-category"
-            type="text"
             value={category}
             onChange={(event) =>
               setCategory(event.target.value)
             }
-            placeholder="e.g. Salary, Food, Transport"
             required
-          />
+          >
+            {categories.map(
+              (categoryOption) => (
+                <option
+                  key={categoryOption}
+                  value={categoryOption}
+                >
+                  {categoryOption}
+                </option>
+              ),
+            )}
+          </select>
 
+          {/* Merchant */}
           <label htmlFor="transaction-merchant">
             Merchant
           </label>
@@ -234,6 +351,7 @@ function Transactions() {
             placeholder="Optional"
           />
 
+          {/* Note */}
           <label htmlFor="transaction-note">
             Note
           </label>
@@ -247,9 +365,13 @@ function Transactions() {
             placeholder="Optional"
           />
 
+          {/* Save button */}
           <button
             type="submit"
-            disabled={submitting || accounts.length === 0}
+            disabled={
+              submitting ||
+              accounts.length === 0
+            }
           >
             {submitting
               ? 'Saving...'
@@ -257,6 +379,10 @@ function Transactions() {
           </button>
         </form>
       </Card>
+
+      {/* ================================
+          TRANSACTION HISTORY
+      ================================= */}
 
       <div className="transactions-list">
         {transactions.length === 0 ? (
@@ -280,20 +406,32 @@ function Transactions() {
                 </h3>
 
                 <p>
+                  {transaction.account.name}
+                </p>
+
+                <p>
                   {new Date(
                     transaction.occurredAt,
                   ).toLocaleString()}
                 </p>
+
+                {transaction.note && (
+                  <p>
+                    {transaction.note}
+                  </p>
+                )}
               </div>
 
               <div className="transaction-amount">
                 {transaction.type === 'INCOME'
                   ? '+'
                   : '-'}
+              <SensitiveValue>
                 {formatCurrency(
                   transaction.amount,
                   transaction.currency,
                 )}
+              </SensitiveValue>  
               </div>
             </Card>
           ))

@@ -10,6 +10,7 @@ const router = Router()
 
 const createAccountSchema = z.object({
   name: z.string().min(1),
+
   type: z.enum([
     'BANK',
     'MOBILE_MONEY',
@@ -18,63 +19,93 @@ const createAccountSchema = z.object({
     'SAVINGS',
     'OTHER',
   ]),
+
   currency: z.string().length(3).default('KES'),
+
   balance: z.number().nonnegative().default(0),
 })
 
+/*
+  GET ALL ACCOUNTS
+
+  Each account balance starts with its opening balance.
+
+  Then:
+  - Income increases the balance
+  - Expense decreases the balance
+*/
 router.get(
   '/',
   requireAuth,
   async (req: AuthenticatedRequest, res) => {
     try {
-      const accounts = await prisma.financialAccount.findMany({
-        where: {
-          userId: req.user!.id,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          transactions: {
-            select: {
-              type: true,
-              amount: true,
+      const accounts =
+        await prisma.financialAccount.findMany({
+          where: {
+            userId: req.user!.id,
+          },
+
+          orderBy: {
+            createdAt: 'desc',
+          },
+
+          include: {
+            transactions: {
+              select: {
+                type: true,
+                amount: true,
+              },
             },
           },
-        },
-      })
+        })
 
-      const accountsWithCalculatedBalance = accounts.map((account) => {
-        const calculatedBalance = account.transactions.reduce(
-          (total, transaction) => {
-            const amount = Number(transaction.amount)
+      const accountsWithCalculatedBalance =
+        accounts.map((account) => {
+          const calculatedBalance =
+            account.transactions.reduce(
+              (total, transaction) => {
+                const amount = Number(
+                  transaction.amount,
+                )
 
-            if (transaction.type === 'INCOME') {
-              return total + amount
-            }
+                if (
+                  transaction.type === 'INCOME'
+                ) {
+                  return total + amount
+                }
 
-            if (transaction.type === 'EXPENSE') {
-              return total - amount
-            }
+                if (
+                  transaction.type === 'EXPENSE'
+                ) {
+                  return total - amount
+                }
 
-            return total
-          },
-          0,
-        )
+                return total
+              },
 
-        const { transactions, ...accountWithoutTransactions } = account
+              // Start with the account opening balance.
+              Number(account.balance),
+            )
 
-        return {
-          ...accountWithoutTransactions,
-          calculatedBalance,
-        }
-      })
+          const {
+            transactions,
+            ...accountWithoutTransactions
+          } = account
+
+          return {
+            ...accountWithoutTransactions,
+            calculatedBalance,
+          }
+        })
 
       return res.status(200).json({
         data: accountsWithCalculatedBalance,
       })
     } catch (error) {
-      console.error('Failed to fetch accounts:', error)
+      console.error(
+        'Failed to fetch accounts:',
+        error,
+      )
 
       return res.status(500).json({
         error: 'Unable to fetch accounts',
@@ -83,6 +114,9 @@ router.get(
   },
 )
 
+/*
+  GET ONE ACCOUNT
+*/
 router.get(
   '/:id',
   requireAuth,
@@ -90,19 +124,21 @@ router.get(
     try {
       const accountId = String(req.params.id)
 
-      const account = await prisma.financialAccount.findFirst({
-        where: {
-          id: accountId,
-          userId: req.user!.id,
-        },
-        include: {
-          transactions: {
-            orderBy: {
-              occurredAt: 'desc',
+      const account =
+        await prisma.financialAccount.findFirst({
+          where: {
+            id: accountId,
+            userId: req.user!.id,
+          },
+
+          include: {
+            transactions: {
+              orderBy: {
+                occurredAt: 'desc',
+              },
             },
           },
-        },
-      })
+        })
 
       if (!account) {
         return res.status(404).json({
@@ -110,22 +146,31 @@ router.get(
         })
       }
 
-      const calculatedBalance = account.transactions.reduce(
-        (total: number, transaction) => {
-          const amount = Number(transaction.amount)
+      const calculatedBalance =
+        account.transactions.reduce(
+          (total, transaction) => {
+            const amount = Number(
+              transaction.amount,
+            )
 
-          if (transaction.type === 'INCOME') {
-            return total + amount
-          }
+            if (
+              transaction.type === 'INCOME'
+            ) {
+              return total + amount
+            }
 
-          if (transaction.type === 'EXPENSE') {
-            return total - amount
-          }
+            if (
+              transaction.type === 'EXPENSE'
+            ) {
+              return total - amount
+            }
 
-          return total
-        },
-        0,
-      )
+            return total
+          },
+
+          // Start with opening balance.
+          Number(account.balance),
+        )
 
       return res.status(200).json({
         data: {
@@ -134,7 +179,10 @@ router.get(
         },
       })
     } catch (error) {
-      console.error('Failed to fetch account:', error)
+      console.error(
+        'Failed to fetch account:',
+        error,
+      )
 
       return res.status(500).json({
         error: 'Unable to fetch account',
@@ -143,12 +191,16 @@ router.get(
   },
 )
 
+/*
+  CREATE ACCOUNT
+*/
 router.post(
   '/',
   requireAuth,
   async (req: AuthenticatedRequest, res) => {
     try {
-      const parsed = createAccountSchema.safeParse(req.body)
+      const parsed =
+        createAccountSchema.safeParse(req.body)
 
       if (!parsed.success) {
         return res.status(400).json({
@@ -157,21 +209,30 @@ router.post(
         })
       }
 
-      const account = await prisma.financialAccount.create({
-        data: {
-          userId: req.user!.id,
-          name: parsed.data.name.trim(),
-          type: parsed.data.type,
-          currency: parsed.data.currency.toUpperCase(),
-          balance: parsed.data.balance,
-        },
-      })
+      const account =
+        await prisma.financialAccount.create({
+          data: {
+            userId: req.user!.id,
+
+            name: parsed.data.name.trim(),
+
+            type: parsed.data.type,
+
+            currency:
+              parsed.data.currency.toUpperCase(),
+
+            balance: parsed.data.balance,
+          },
+        })
 
       return res.status(201).json({
         data: account,
       })
     } catch (error) {
-      console.error('Failed to create account:', error)
+      console.error(
+        'Failed to create account:',
+        error,
+      )
 
       return res.status(500).json({
         error: 'Unable to create account',

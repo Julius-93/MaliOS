@@ -4,19 +4,23 @@ import {
   getAccounts,
 } from '../services/api'
 import Card from '../components/ui/Card'
+import SensitiveValue from '../components/ui/SensitiveValue'
 
 function Accounts() {
   const [accounts, setAccounts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Form fields
   const [name, setName] = useState('')
   const [type, setType] = useState('BANK')
   const [currency, setCurrency] = useState('KES')
+  const [balance, setBalance] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const token = sessionStorage.getItem('malios_token')
 
+  // Load all accounts when the page opens.
   useEffect(() => {
     let cancelled = false
 
@@ -47,11 +51,13 @@ function Accounts() {
     }
   }, [token])
 
+  // Reload accounts after creating a new one.
   async function refreshAccounts() {
     const data = await getAccounts(token)
     setAccounts(data)
   }
 
+  // Handle account creation.
   async function handleSubmit(event) {
     event.preventDefault()
 
@@ -63,12 +69,14 @@ function Accounts() {
         name,
         type,
         currency,
-        balance: 0,
+        balance: Number(balance || 0),
       })
 
+      // Clear the form after successful creation.
       setName('')
       setType('BANK')
       setCurrency('KES')
+      setBalance('')
 
       await refreshAccounts()
     } catch (err) {
@@ -79,12 +87,13 @@ function Accounts() {
     }
   }
 
+  // Display money using the currency belonging to each account.
   const formatCurrency = (amount, accountCurrency) =>
     new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: accountCurrency,
       maximumFractionDigits: 0,
-    }).format(amount)
+    }).format(Number(amount))
 
   if (loading) {
     return (
@@ -96,16 +105,10 @@ function Accounts() {
 
   return (
     <section className="dashboard-page">
-      <div className="dashboard-heading">
-        <div>
-          <p className="eyebrow">Money</p>
-
-          <h2>Accounts</h2>
-
+      <div className="page-intro">
           <p>
             Manage the places where your money is held.
           </p>
-        </div>
       </div>
 
       {error && (
@@ -124,6 +127,7 @@ function Accounts() {
           className="account-form"
           onSubmit={handleSubmit}
         >
+          {/* Account name */}
           <label htmlFor="account-name">
             Account name
           </label>
@@ -139,6 +143,7 @@ function Accounts() {
             required
           />
 
+          {/* Account type */}
           <label htmlFor="account-type">
             Account type
           </label>
@@ -175,6 +180,7 @@ function Accounts() {
             </option>
           </select>
 
+          {/* Account currency */}
           <label htmlFor="account-currency">
             Currency
           </label>
@@ -203,6 +209,24 @@ function Accounts() {
             </option>
           </select>
 
+          {/* Opening balance */}
+          <label htmlFor="account-balance">
+            Opening Balance
+          </label>
+
+          <input
+            id="account-balance"
+            type="number"
+            min="0"
+            step="0.01"
+            value={balance}
+            onChange={(event) =>
+              setBalance(event.target.value)
+            }
+            placeholder="e.g. 25000"
+          />
+
+          {/* Submit button */}
           <button
             type="submit"
             disabled={submitting}
@@ -233,16 +257,20 @@ function Accounts() {
                 <h3>{account.name}</h3>
               </div>
 
-              <div>
-                <p>Available Balance</p>
+              <div className="account-balance-block">
+                <span className="account-card-label">
+                  Current Balance
+                </span>
 
-                <strong>
-                  {formatCurrency(
-                    account.calculatedBalance,
-                    account.currency,
-                  )}
+                <strong className="account-balance-value">
+                  <SensitiveValue>
+                    {formatCurrency(
+                      account.calculatedBalance,
+                      account.currency,
+                    )}
+                  </SensitiveValue>
                 </strong>
-              </div>
+             </div>
             </Card>
           ))
         )}
