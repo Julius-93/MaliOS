@@ -1,4 +1,9 @@
 import {
+  lazy,
+  Suspense,
+} from 'react'
+
+import {
   Routes,
   Route,
 } from 'react-router-dom'
@@ -6,40 +11,153 @@ import {
 import DashboardLayout from '../layouts/DashboardLayout'
 import ProtectedRoute from '../components/ProtectedRoute'
 
+/*
+ * Keep Login eager.
+ *
+ * It is a small public page and should be
+ * immediately available when an unauthenticated
+ * user opens MaliOS.
+ */
 import Login from '../pages/Login'
-import Dashboard from '../pages/Dashboard'
-import Accounts from '../pages/Accounts'
-import Transactions from '../pages/Transactions'
-import Budgets from '../pages/Budgets'
-import CashFlow from '../pages/CashFlow'
-import Investments from '../pages/Investments'
-import Portfolio from '../pages/Portfolio'
-import Opportunities from '../pages/Opportunities'
-import Goals from '../pages/Goals'
-import Settings from '../pages/Settings'
-import Notifications from '../pages/Notifications'
 
 
-// Temporary placeholder for sections
-// that we have not built yet.
-function PlaceholderPage({
-  title,
-}) {
+/* ========================================
+   LAZY-LOADED PROTECTED PAGES
+======================================== */
+
+/*
+ * Each protected page is loaded only when
+ * the user actually navigates to that route.
+ *
+ * This prevents large sections such as
+ * Cash Flow and its Recharts dependency
+ * from being included in the initial
+ * application bundle.
+ */
+
+const Dashboard =
+  lazy(
+    () =>
+      import(
+        '../pages/Dashboard'
+      ),
+  )
+
+
+const Accounts =
+  lazy(
+    () =>
+      import(
+        '../pages/Accounts'
+      ),
+  )
+
+
+const Transactions =
+  lazy(
+    () =>
+      import(
+        '../pages/Transactions'
+      ),
+  )
+
+
+const Budgets =
+  lazy(
+    () =>
+      import(
+        '../pages/Budgets'
+      ),
+  )
+
+
+const CashFlow =
+  lazy(
+    () =>
+      import(
+        '../pages/CashFlow'
+      ),
+  )
+
+
+const Investments =
+  lazy(
+    () =>
+      import(
+        '../pages/Investments'
+      ),
+  )
+
+
+const Portfolio =
+  lazy(
+    () =>
+      import(
+        '../pages/Portfolio'
+      ),
+  )
+
+
+const Opportunities =
+  lazy(
+    () =>
+      import(
+        '../pages/Opportunities'
+      ),
+  )
+
+
+const Goals =
+  lazy(
+    () =>
+      import(
+        '../pages/Goals'
+      ),
+  )
+
+
+const Settings =
+  lazy(
+    () =>
+      import(
+        '../pages/Settings'
+      ),
+  )
+
+
+const Notifications =
+  lazy(
+    () =>
+      import(
+        '../pages/Notifications'
+      ),
+  )
+
+
+/* ========================================
+   ROUTE LOADING FALLBACK
+======================================== */
+
+/*
+ * Suspense displays this while a page chunk
+ * is downloaded for the first time.
+ *
+ * Subsequent visits will normally use the
+ * browser's cached copy.
+ */
+function RouteLoadingFallback() {
   return (
     <section className="dashboard-page">
 
-      <div className="dashboard-heading">
+      <div className="route-loading-state">
 
-        <p className="eyebrow">
-          MaliOS
-        </p>
-
-        <h2>
-          {title}
-        </h2>
+        <div
+          className="route-loading-spinner"
+          aria-hidden="true"
+        />
 
         <p>
-          This section is under development.
+          Loading...
         </p>
 
       </div>
@@ -49,136 +167,162 @@ function PlaceholderPage({
 }
 
 
+/* ========================================
+   APPLICATION ROUTES
+======================================== */
+
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense
+      fallback={
+        <RouteLoadingFallback />
+      }
+    >
 
-      {/* Public route */}
+      <Routes>
 
-      <Route
-        path="/login"
-        element={
-          <Login />
-        }
-      />
+        {/* =================================
+            PUBLIC ROUTES
+        ================================== */}
+
+        <Route
+          path="/login"
+          element={
+            <Login />
+          }
+        />
 
 
-      {/* Protected MaliOS routes */}
-
-      <Route
-        element={
-          <ProtectedRoute />
-        }
-      >
+        {/* =================================
+            PROTECTED MALIOS ROUTES
+        ================================== */}
 
         <Route
           element={
-            <DashboardLayout />
+            <ProtectedRoute />
           }
         >
 
-          {/* Dashboard */}
-
           <Route
-            path="/"
             element={
-              <Dashboard />
+              <DashboardLayout />
             }
-          />
+          >
+
+            {/* =============================
+                DASHBOARD
+            ============================== */}
+
+            <Route
+              path="/"
+              element={
+                <Dashboard />
+              }
+            />
 
 
-          {/* Money */}
+            {/* =============================
+                MONEY
+            ============================== */}
 
-          <Route
-            path="/accounts"
-            element={
-              <Accounts />
-            }
-          />
-
-
-          <Route
-            path="/transactions"
-            element={
-              <Transactions />
-            }
-          />
+            <Route
+              path="/accounts"
+              element={
+                <Accounts />
+              }
+            />
 
 
-          <Route
-            path="/budgets"
-            element={
-              <Budgets />
-            }
-          />
+            <Route
+              path="/transactions"
+              element={
+                <Transactions />
+              }
+            />
 
 
-          <Route
-            path="/cash-flow"
-            element={
-              <CashFlow />
-            }
-          />
+            <Route
+              path="/budgets"
+              element={
+                <Budgets />
+              }
+            />
 
 
-          {/* Investments */}
-
-          <Route
-            path="/portfolio"
-            element={
-              <Portfolio />
-            }
-          />
+            <Route
+              path="/cash-flow"
+              element={
+                <CashFlow />
+              }
+            />
 
 
-          <Route
-            path="/investments"
-            element={
-              <Investments />
-            }
-          />
+            {/* =============================
+                INVESTMENTS
+            ============================== */}
+
+            <Route
+              path="/portfolio"
+              element={
+                <Portfolio />
+              }
+            />
 
 
-          <Route
-            path="/opportunities"
-            element={
-              <Opportunities />
-            }
-          />
+            <Route
+              path="/investments"
+              element={
+                <Investments />
+              }
+            />
 
 
-          {/* Planning */}
-
-          <Route
-            path="/goals"
-            element={
-              <Goals />
-            }
-          />
+            <Route
+              path="/opportunities"
+              element={
+                <Opportunities />
+              }
+            />
 
 
-          {/* System */}
+            {/* =============================
+                PLANNING
+            ============================== */}
 
-          <Route
-            path="/settings"
-            element={
-              <Settings />
-            }
-          />
+            <Route
+              path="/goals"
+              element={
+                <Goals />
+              }
+            />
 
 
-          <Route
-            path="/notifications"
-            element={
-              <Notifications />
-            }
-          />
+            {/* =============================
+                SYSTEM
+            ============================== */}
+
+            <Route
+              path="/settings"
+              element={
+                <Settings />
+              }
+            />
+
+
+            <Route
+              path="/notifications"
+              element={
+                <Notifications />
+              }
+            />
+
+          </Route>
 
         </Route>
 
-      </Route>
+      </Routes>
 
-    </Routes>
+    </Suspense>
   )
 }
 
